@@ -1,10 +1,18 @@
 FROM python:3.9-slim
 
-WORKDIR /app
+# Installation des outils de compilation nécessaires
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        python3-dev \
+        pkg-config \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY price_streamer/ price_streamer/
 
-CMD ["python", "-m", "price_streamer.main"]
+RUN pip install --no-cache-dir -e .
+
+CMD ["python", "-m", "price_streamer"]
