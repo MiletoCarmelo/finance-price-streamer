@@ -3,6 +3,7 @@
 
 Application Python qui simule un flux de données financières en temps réel à partir de données historiques.
 
+
 ## Installation
 
 ```bash
