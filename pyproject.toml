@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "finance-price-streamer"
+version = "0.1.0"
+description = ""
+authors = ["MiletoCarmelo <carmelo.mileto@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

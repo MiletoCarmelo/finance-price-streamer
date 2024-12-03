@@ -1,18 +1,23 @@
-FROM python:3.9-slim
+# Selection basis
+FROM python:3.11.9
 
-# Installation des outils de compilation nécessaires
-RUN apt-get update && \
-    apt-get install -y \
-        build-essential \
-        python3-dev \
-        pkg-config \
-        && rm -rf /var/lib/apt/lists/*
+# Set working directory
+WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy dependency files and source code
+COPY ./pyproject.toml ./poetry.lock* ./
+COPY . .
+
+# Update pip and install Poetry
+RUN pip install --upgrade pip && \
+ pip install poetry
+
+# Install dependencies
+RUN poetry config virtualenvs.create false && \
+ poetry install --no-interaction --no-ansi
+ 
 
 COPY price_streamer/ price_streamer/
 
-RUN pip install --no-cache-dir -e .
 
 CMD ["python", "-m", "price_streamer"]
