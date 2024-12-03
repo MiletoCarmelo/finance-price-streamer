@@ -18,6 +18,7 @@ if [ ! -d "$SOURCE_DIR" ]; then
     exit 1
 fi
 
+
 # Supprime le fichier de sortie s'il existe déjà
 [ -f "$OUTPUT_FILE" ] && rm "$OUTPUT_FILE"
 
