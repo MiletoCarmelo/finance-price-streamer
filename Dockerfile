@@ -5,7 +5,8 @@ FROM python:3.11.9
 WORKDIR /app
 
 # Copy dependency files and source code
-COPY ./pyproject.toml ./poetry.lock* ./
+# COPY ./pyproject.toml ./poetry.lock* ./
+COPY ./pyproject.toml ./
 COPY . .
 
 # Update pip and install Poetry
