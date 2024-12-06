@@ -20,5 +20,7 @@ RUN poetry config virtualenvs.create false && \
 
 COPY price_streamer/ price_streamer/
 
+# Exposer le port 8000
+EXPOSE 8000
 
 CMD ["python", "-m", "price_streamer"]
