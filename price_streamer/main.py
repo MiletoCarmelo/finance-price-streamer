@@ -36,12 +36,18 @@ def main():
     server_thread.start()
     
     parser = argparse.ArgumentParser(description='Finance Price Streamer')
+
     parser.add_argument('--api', action='store_true', help='Lancer en mode API')
     parser.add_argument('--source', type=str, default='yahoo', choices=['yahoo'])
     parser.add_argument('--symbol', type=str)
     parser.add_argument('--days', type=int)
     parser.add_argument('--speed', type=float)
-    parser.add_argument('--kafka-servers', type=str)
+    parser.add_argument(
+        '--kafka-servers',
+        type=str,
+        default=os.getenv('KAFKA_SERVERS', 'localhost:9092'),
+        help='Liste des serveurs Kafka (séparés par des virgules)'
+    )
     parser.add_argument('--kafka-topic', type=str, default='finance-price-stream')
 
     args = parser.parse_args()
@@ -65,6 +71,8 @@ def main():
             data_source=YahooFinanceSource(),
             kafka_config=kafka_config
         )
+
+        print(f"Using Kafka config: {kafka_config}")  # Pour le debug
 
         streamer.stream(
             symbol=symbol,
