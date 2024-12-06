@@ -30,13 +30,7 @@ def get_env_or_default(key: str, default: str) -> str:
     return os.getenv(key, default)
 
 def main():
-
-    # Démarrer le serveur HTTP dans un thread séparé
-    server_thread = Thread(target=run_server, daemon=True)
-    server_thread.start()
-    
     parser = argparse.ArgumentParser(description='Finance Price Streamer')
-
     parser.add_argument('--api', action='store_true', help='Lancer en mode API')
     parser.add_argument('--source', type=str, default='yahoo', choices=['yahoo'])
     parser.add_argument('--symbol', type=str)
@@ -52,6 +46,12 @@ def main():
 
     args = parser.parse_args()
 
+    # Démarrer le serveur HTTP dans un thread séparé seulement si --api n'est pas utilisé
+    if not args.api:
+        server_thread = Thread(target=run_server, daemon=True)
+        server_thread.start()
+
+    # Si --api est True, on démarre uniquement le serveur HTTP
     if args.api:
         uvicorn.run(app, host="0.0.0.0", port=8000)
         return
