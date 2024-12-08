@@ -1,3 +1,14 @@
+# price_streamer/streamer.py
+from kafka import KafkaProducer
+from kafka.errors import NoBrokersAvailable
+from .sources.base import DataSourceBase
+import json
+import time
+import logging
+from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
+
 class PriceStreamer:
     def __init__(self, data_source: DataSourceBase, kafka_config: Dict[str, Any]):
         self.data_source = data_source

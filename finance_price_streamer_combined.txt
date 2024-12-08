@@ -1180,6 +1180,8 @@ def main():
         'bootstrap_servers': kafka_servers.split(',')
     }
 
+    print(kafka_config)
+
     try:
         streamer = PriceStreamer(
             data_source=YahooFinanceSource(),
@@ -1380,33 +1382,44 @@ async def stop_stream():
 
 ==== ./price_streamer/streamer.py ====
 
-# price_streamer/streamer.py
-from kafka import KafkaProducer
-import json
-import time
-import logging
-from typing import Dict, Any
-from .sources.base import DataSourceBase
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 class PriceStreamer:
     def __init__(self, data_source: DataSourceBase, kafka_config: Dict[str, Any]):
         self.data_source = data_source
-        self.producer = KafkaProducer(
-            bootstrap_servers=kafka_config['bootstrap_servers'],
-            value_serializer=lambda x: json.dumps(x, default=str).encode('utf-8')
-        )
+        self.kafka_config = kafka_config
+        self.producer = None
         self.stop_streaming = False
+        self.connect_to_kafka()
 
-    def stream(self, symbol: str, lookback_days: int, replay_speed: float = 1.0):
+    def connect_to_kafka(self, max_retries=5, retry_delay=5):
+        """Établit la connexion à Kafka avec retry"""
+        retries = 0
+        while retries < max_retries:
+            try:
+                logger.info(f"Tentative de connexion à Kafka: {self.kafka_config['bootstrap_servers']}")
+                self.producer = KafkaProducer(
+                    value_serializer=lambda x: json.dumps(x, default=str).encode('utf-8'),
+                    **self.kafka_config
+                )
+                logger.info("Connexion à Kafka établie avec succès")
+                return
+            except NoBrokersAvailable:
+                retries += 1
+                if retries == max_retries:
+                    logger.error(f"Impossible de se connecter à Kafka après {max_retries} tentatives")
+                    raise
+                logger.warning(f"Tentative {retries}/{max_retries} échouée, nouvelle tentative dans {retry_delay}s")
+                time.sleep(retry_delay)
+            except Exception as e:
+                logger.error(f"Erreur inattendue lors de la connexion à Kafka: {str(e)}")
+                raise
+
+    def stream(self, symbol: str, lookback_days: int, replay_speed: float = 1.0, topic: str = 'finance-price-stream'):
         """Stream les données historiques"""
         try:
             self.stop_streaming = False
             data = self.data_source.fetch_historical_data(symbol, lookback_days)
             
-            logger.info(f"Starting stream for {symbol}")
+            logger.info(f"Starting stream for {symbol} to topic {topic}")
             
             for timestamp, row in data.iterrows():
                 if self.stop_streaming:
@@ -1426,8 +1439,12 @@ class PriceStreamer:
                     }
                 }
                 
-                self.producer.send('finance-price-stream', message)
-                logger.info(f"Streamed: {symbol} - Close: {message['data']['close']}")
+                if not self.producer:
+                    logger.error("Pas de connexion Kafka disponible")
+                    break
+
+                self.producer.send(topic, message)
+                logger.info(f"Streamed to {topic}: {symbol} - Close: {message['data']['close']}")
                 
                 time.sleep(60 / replay_speed)
                 
