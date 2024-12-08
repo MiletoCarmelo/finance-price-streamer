@@ -39,7 +39,7 @@ def main():
     parser.add_argument(
         '--kafka-servers',
         type=str,
-        default=os.getenv('KAFKA_SERVERS', 'localhost:9092'),
+        default=os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092'),
         help='Liste des serveurs Kafka (séparés par des virgules)'
     )
     parser.add_argument('--kafka-topic', type=str, default='finance-price-stream')
@@ -60,7 +60,7 @@ def main():
     symbol = args.symbol or get_env_or_default('DEFAULT_SYMBOL', 'JPY')
     days = args.days or int(get_env_or_default('DEFAULT_DAYS', '3'))
     speed = args.speed or float(get_env_or_default('DEFAULT_SPEED', '1.0'))
-    kafka_servers = args.kafka_servers or get_env_or_default('KAFKA_SERVERS', 'localhost:9092')
+    kafka_servers = args.kafka_servers or get_env_or_default('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 
     kafka_config = {
         'bootstrap_servers': kafka_servers.split(',')
