@@ -66,6 +66,8 @@ def main():
         'bootstrap_servers': kafka_servers.split(',')
     }
 
+    print(kafka_config)
+
     try:
         streamer = PriceStreamer(
             data_source=YahooFinanceSource(),
