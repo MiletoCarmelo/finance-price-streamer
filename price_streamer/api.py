@@ -75,3 +75,11 @@ async def start_stream(config: StreamConfig):
 async def stop_stream():
     state.stop_streaming()
     return {"message": "Stopped streaming"}
+
+@app.get("/health/live")
+async def liveness():
+    return {"status": "ok"}
+
+@app.get("/health/ready") 
+async def readiness():
+    return {"status": "ok"}

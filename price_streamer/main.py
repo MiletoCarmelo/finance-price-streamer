@@ -10,15 +10,15 @@ import asyncio
 from fastapi import FastAPI
 from threading import Thread
 
-app = FastAPI()
+# app = FastAPI()
 
-@app.get("/health/live")
-async def liveness():
-    return {"status": "ok"}
+# @app.get("/health/live")
+# async def liveness():
+#     return {"status": "ok"}
 
-@app.get("/health/ready") 
-async def readiness():
-    return {"status": "ok"}
+# @app.get("/health/ready") 
+# async def readiness():
+#     return {"status": "ok"}
 
 def run_server():
     uvicorn.run(app, host="0.0.0.0", port=8000)
