@@ -252,7 +252,9 @@ class StreamerState:
         self.stream_thread = None
         self.config = None
         self.kafka_config = {
-            'bootstrap_servers': os.getenv('KAFKA_SERVERS', 'kafka-service:9092').split(',')
+            'bootstrap_servers': os.getenv('KAFKA_SERVERS', 'kafka-service:9092').split(','),
+            'request_timeout_ms': 120000,  # Set a longer timeout (2 minutes)
+            'metadata_max_age_ms': 60000   # Adjust metadata refresh interval (1 minute)
         }
         
     def start_streaming(self, config: StreamConfig):
